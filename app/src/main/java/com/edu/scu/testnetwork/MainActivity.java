@@ -22,8 +22,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button button2;//丢包率
     private Button button3;//时延
     private Button button4;//抖动率
-    private Button button5;//q清除按钮
+    private Button button5;//清除数据
     private TextView info;//信息区
+    private long T1;//开始时间
+    private long T2;//结束时间
+    private String T3;//时延
 
     private Handler handler=new Handler(){
         @Override
@@ -74,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void run() {
                         Properties pop = System.getProperties();
-                        String proxyHost ="124.193.33.233";
+                        String proxyHost ="89.144.27.62";
                         String proxyPort="3128";
                         pop.put("proxySet","true");
                         pop.put("proxyHost",proxyHost);
@@ -88,11 +91,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             connection.setConnectTimeout(10000);
                             connection.setReadTimeout(10000);
                             connection.setUseCaches(false);
+                            T1 = System.currentTimeMillis();
                             connection.connect();
-                            Log.d("开始connect时间", String.valueOf(System.currentTimeMillis()));
-                            //Log.d("信息－－－－－－", String.valueOf(connection.getContent()));
+                            T2 =System.currentTimeMillis();
+                            T3 = String.valueOf(T2 - T1);
+                            Log.d("信息－－－－－－", String.valueOf(connection.getContent()));
                             //Log.d("地址", connection.getHeaderField("Location"));
-                            //Log.d("网络请求码－－－－－－", String.valueOf(connection.getResponseCode()));
+                            Log.d("网络请求码－－－－－－", String.valueOf(connection.getResponseCode())+"开始时间"+T1+"     结束时间："+T2  +  "     时延"+T3);
+
 
 
                             if (connection.getResponseCode() == 200) {
@@ -125,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.clear:
                 info.setText("");
+                break;
             default:
                 break;
         }
@@ -184,5 +191,56 @@ public static void main(String[] args) {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    // System.out.println(iplongToIp(999756777));
+        String lost = new String();
+        String delay = new String();
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec("ping 192.168.146.55");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        BufferedReader buf = new BufferedReader(new InputStreamReader(
+                p.getInputStream()));
+        String str = new String();
+        try {
+            while ((str = buf.readLine()) != null) {
+                System.out.println(str);
+                if (str.contains("packet loss")) {
+                    int i = str.indexOf("received");
+                    int j = str.indexOf("%");
+                    System.out.println("丢包率:" + str.substring(i + 10, j + 1));
+                    // System.out.println("丢包率:"+str.substring(j-3, j+1));
+                    lost = str.substring(i + 10, j + 1);
+                }
+                if (str.contains("avg")) {
+                    int i = str.indexOf("/", 20);
+                    int j = str.indexOf(".", i);
+                    System.out.println("延迟:" + str.substring(i + 1, j));
+                    delay = str.substring(i + 1, j);
+                    delay = delay + "ms";
+                }
+
+            }
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+        System.out.println(lost);
+    }
+
+    public static String iplongToIp(long ipaddress) {
+        StringBuffer sb = new StringBuffer("");
+        sb.append(String.valueOf((ipaddress >>> 24)));
+        sb.append(".");
+        sb.append(String.valueOf((ipaddress & 0x00FFFFFF) >>> 16));
+        sb.append(".");
+        sb.append(String.valueOf((ipaddress & 0x0000FFFF) >>> 8));
+        sb.append(".");
+        sb.append(String.valueOf((ipaddress & 0x000000FF)));
+        return sb.toString();
     }
  */
